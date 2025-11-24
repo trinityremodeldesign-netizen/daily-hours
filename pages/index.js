@@ -211,4 +211,135 @@ export default function DailyHoursForm() {
               value={totalHours}
               onChange={(e) => setTotalHours(e.target.value)}
               placeholder="8"
-              className="flex-1 p-4 bg-slate-800 border border-slate-600 rounded-xl text-white text-2xl font-bold text-center placeholder-slate-500 focus:outline-none focus:border-emera
+              className="flex-1 p-4 bg-slate-800 border border-slate-600 rounded-xl text-white text-2xl font-bold text-center placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+            />
+            <select
+              value={totalHoursFraction}
+              onChange={(e) => setTotalHoursFraction(e.target.value)}
+              className="w-24 p-4 bg-slate-800 border border-slate-600 rounded-xl text-white text-2xl font-bold text-center focus:outline-none focus:border-emerald-500"
+            >
+              <option value="0">.00</option>
+              <option value="0.25">.25</option>
+              <option value="0.5">.50</option>
+              <option value="0.75">.75</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <label className="text-slate-400 text-sm font-medium">TASK BREAKDOWN</label>
+            {totalHoursValue > 0 && (
+              <span className={`text-sm font-semibold ${hoursMatch ? 'text-emerald-400' : 'text-amber-400'}`}>
+                {taskHoursSum} / {totalHoursValue} hrs
+              </span>
+            )}
+          </div>
+          
+          <div className="space-y-4">
+            {tasks.map((task, index) => (
+              <div key={index} className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                <div className="flex gap-3 mb-3">
+                  <select
+                    value={task.task}
+                    onChange={(e) => updateTask(index, 'task', e.target.value)}
+                    className="flex-1 p-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">Select task...</option>
+                    {TASKS.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={task.hours}
+                    onChange={(e) => updateTask(index, 'hours', e.target.value)}
+                    placeholder="Hrs"
+                    className="w-16 p-3 bg-slate-700 border border-slate-600 rounded-lg text-white text-center focus:outline-none focus:border-emerald-500"
+                  />
+                  
+                  <select
+                    value={task.hoursFraction}
+                    onChange={(e) => updateTask(index, 'hoursFraction', e.target.value)}
+                    className="w-20 p-3 bg-slate-700 border border-slate-600 rounded-lg text-white text-center focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="0">.00</option>
+                    <option value="0.25">.25</option>
+                    <option value="0.5">.50</option>
+                    <option value="0.75">.75</option>
+                  </select>
+                  
+                  {tasks.length > 1 && (
+                    <button
+                      onClick={() => removeTask(index)}
+                      className="p-3 bg-slate-700 hover:bg-red-900 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                
+                <input
+                  type="text"
+                  value={task.notes}
+                  onChange={(e) => updateTask(index, 'notes', e.target.value)}
+                  placeholder="Which rooms? What did you work on?"
+                  className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={addTask}
+            className="mt-4 w-full py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold rounded-xl border border-slate-700 border-dashed transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Another Task
+          </button>
+        </div>
+
+        {totalHoursValue > 0 && !hoursMatch && (
+          <div className="mb-6 p-4 bg-amber-900/30 border border-amber-500/30 rounded-xl">
+            <p className="text-amber-400 text-sm font-medium">
+              Task hours ({taskHoursSum}) don't match total hours ({totalHoursValue}). 
+              {taskHoursSum < totalHoursValue 
+                ? ` Add ${(totalHoursValue - taskHoursSum).toFixed(2)} more hours.`
+                : ` Remove ${(taskHoursSum - totalHoursValue).toFixed(2)} hours.`
+              }
+            </p>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-500/30 rounded-xl">
+            <p className="text-red-400 text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={!formValid || submitting}
+          className={`w-full py-5 rounded-xl font-bold text-lg transition-all ${
+            formValid && !submitting
+              ? 'bg-emerald-500 hover:bg-emerald-400 text-white'
+              : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+          }`}
+        >
+          {submitting ? 'Submitting...' : 'Submit Hours'}
+        </button>
+
+        <p className="text-center text-slate-600 text-sm mt-6">
+          Questions? Text Jeff
+        </p>
+      </div>
+    </div>
+  );
+}
