@@ -43,7 +43,7 @@ const TASKS = [
   'Other'
 ];
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyOGL16xo_ARbb8Rk7H75DBNTX9IHEF55x85T_l6fSeEKJTNpvH_yD0exRQ8Z-138Y7yA/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhNeUyc6e-qHs5evUDUdkuWNRp7hRlzwDC1QyZSeL15ReYtQN8K36oS2s5Y0wgvjAcyA/exec';
 
 export default function DailyHoursForm() {
   const [employee, setEmployee] = useState('');
