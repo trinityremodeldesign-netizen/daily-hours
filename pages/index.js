@@ -43,7 +43,34 @@ const TASKS = [
   'Other'
 ];
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhNeUyc6e-qHs5evUDUdkuWNRp7hRlzwDC1QyZSeL15ReYtQN8K36oS2s5Y0wgvjAcyA/exec';
+const ROOMS = [
+  'Kitchen',
+  'Living Room',
+  'Dining Room',
+  'Master Bedroom',
+  'Master Bedroom - Closet',
+  'Bedroom 1',
+  'Bedroom 1 - Closet',
+  'Bedroom 2',
+  'Bedroom 2 - Closet',
+  'Bedroom 3',
+  'Bedroom 3 - Closet',
+  'Bedroom 4',
+  'Bedroom 4 - Closet',
+  'Bathroom 1',
+  'Bathroom 2',
+  'Bathroom 3',
+  'Laundry Room',
+  'Garage',
+  'Basement',
+  'Exterior - Front',
+  'Exterior - Left Side',
+  'Exterior - Right Side',
+  'Exterior - Back',
+  'Other'
+];
+
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEB26HMmj4Sfmmk-3joexv_WRh_DhkiuM9EYasXGH3Q0E0Q1udDKz-W0OAFvv23rLSDw/exec';
 
 export default function DailyHoursForm() {
   const [employee, setEmployee] = useState('');
@@ -51,7 +78,7 @@ export default function DailyHoursForm() {
   const [customProject, setCustomProject] = useState('');
   const [totalHours, setTotalHours] = useState('');
   const [totalHoursFraction, setTotalHoursFraction] = useState('0');
-  const [tasks, setTasks] = useState([{ task: '', hours: '', hoursFraction: '0', notes: '' }]);
+  const [tasks, setTasks] = useState([{ room: '', task: '', hours: '', hoursFraction: '0', notes: '' }]);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -69,7 +96,7 @@ export default function DailyHoursForm() {
   const hoursMatch = totalHoursValue === taskHoursSum;
   const formValid = employee && (project !== 'other' ? project : customProject) && totalHoursValue > 0 && taskHoursSum > 0 && hoursMatch;
 
-  const addTask = () => setTasks([...tasks, { task: '', hours: '', hoursFraction: '0', notes: '' }]);
+  const addTask = () => setTasks([...tasks, { room: '', task: '', hours: '', hoursFraction: '0', notes: '' }]);
   const removeTask = (index) => tasks.length > 1 && setTasks(tasks.filter((_, i) => i !== index));
   const updateTask = (index, field, value) => {
     const updated = [...tasks];
@@ -91,6 +118,7 @@ export default function DailyHoursForm() {
       project: project === 'other' ? customProject : PROJECTS.find(p => p.id === project)?.address,
       totalHours: totalHoursValue,
       tasks: tasks.filter(t => t.task && (parseFloat(t.hours) || parseFloat(t.hoursFraction))).map(t => ({
+        room: t.room || 'Not specified',
         task: t.task,
         hours: (parseFloat(t.hours) || 0) + (parseFloat(t.hoursFraction) || 0),
         notes: t.notes
@@ -132,7 +160,7 @@ export default function DailyHoursForm() {
               setCustomProject('');
               setTotalHours('');
               setTotalHoursFraction('0');
-              setTasks([{ task: '', hours: '', hoursFraction: '0', notes: '' }]);
+              setTasks([{ room: '', task: '', hours: '', hoursFraction: '0', notes: '' }]);
               setError('');
             }}
             className="w-full py-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition-colors"
@@ -239,6 +267,20 @@ export default function DailyHoursForm() {
           <div className="space-y-4">
             {tasks.map((task, index) => (
               <div key={index} className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                <div className="mb-3">
+                  <label className="block text-slate-400 text-xs font-medium mb-2">ROOM</label>
+                  <select
+                    value={task.room}
+                    onChange={(e) => updateTask(index, 'room', e.target.value)}
+                    className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">Select room...</option>
+                    {ROOMS.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
+                
                 <div className="flex gap-3 mb-3">
                   <select
                     value={task.task}
@@ -288,7 +330,7 @@ export default function DailyHoursForm() {
                   type="text"
                   value={task.notes}
                   onChange={(e) => updateTask(index, 'notes', e.target.value)}
-                  placeholder="Which rooms? What did you work on?"
+                  placeholder="What did you work on? Any details?"
                   className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
