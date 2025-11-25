@@ -22,6 +22,9 @@ const TASKS = [
   'Paint - Primer',
   'Paint - Interior',
   'Paint - Exterior',
+  'Paint - Doors',
+  'Paint - Floor trim',
+  'Paint - Window trim',
   'Tile - Concrete board',
   'Tile - Shower',
   'Tile - Floor',
@@ -70,7 +73,7 @@ const ROOMS = [
   'Other'
 ];
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxEB26HMmj4Sfmmk-3joexv_WRh_DhkiuM9EYasXGH3Q0E0Q1udDKz-W0OAFvv23rLSDw/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH6LgDLO9BI0354dqv4GLKcPx-5hZGWFTkR0Y6E8oUSvipuyZnDha3k1wf7OuH5uPdYQ/exec';
 
 export default function DailyHoursForm() {
   const [employee, setEmployee] = useState('');
