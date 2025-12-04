@@ -3,21 +3,29 @@ import { useState } from 'react';
 const EMPLOYEES = [
   { id: 'AP', name: 'Alexis Preciado' },
   { id: 'TL', name: 'Tanner Langenbahn' },
-  { id: 'CG', name: 'Cris Gonzalez' }
+  { id: 'CG', name: 'Cris Gonzalez' },
+  { id: 'JC', name: 'Jeff Crawford' },
+  { id: 'TEST', name: 'Test Entry' }
 ];
 
 const PROJECTS = [
   { id: '1208', address: '1208 W 71st Terrace, Kansas City, MO' },
   { id: '2217', address: '2217 S Cedar Ave, Independence, MO' },
+  { id: '6206', address: '6206 Robinson St, Overland Park, KS' },
+  { id: 'test', address: 'TEST - Do Not Use for Payroll' },
   { id: 'other', address: 'Other (enter below)' }
 ];
 
 const TASKS = [
   'Demo',
+  'Concrete - Demo',
+  'Concrete - Finish',
   'Framing',
+  'Insulation',
   'Drywall - Hang',
   'Drywall - Sand',
   'Drywall - Texture',
+  'Paint - Prep',
   'Paint - Prep and caulking',
   'Paint - Primer',
   'Paint - Interior',
@@ -31,6 +39,8 @@ const TASKS = [
   'Tile - Grout',
   'Cabinets - Lowers',
   'Cabinets - Uppers',
+  'Cabinet hardware',
+  'Countertops',
   'Trim - Base shoe',
   'Trim - Baseboard',
   'Trim - Crown',
@@ -38,12 +48,29 @@ const TASKS = [
   'Trim - Door casing',
   'Trim - Interior doors',
   'Trim - Exterior doors',
+  'Door hardware',
   'Window replacement',
   'Flooring',
-  'Electrical',
+  'Electrical - Rough',
+  'Electrical - Finish',
+  'Plumbing - Rough',
+  'Plumbing - Finish',
+  'Ductwork - Rough',
+  'Ductwork - Finish',
+  'Roofing',
+  'Site work',
   'Cleanup',
-  'Lunch',
   'Other'
+];
+
+const ADMIN_TASKS = [
+  'Bidding / Estimating',
+  'Customer meetings',
+  'Customer calls',
+  'Material runs',
+  'Invoicing',
+  'Scheduling',
+  'Travel'
 ];
 
 const ROOMS = [
@@ -70,10 +97,11 @@ const ROOMS = [
   'Exterior - Left Side',
   'Exterior - Right Side',
   'Exterior - Back',
+  'Whole House',
   'Other'
 ];
 
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzH6LgDLO9BI0354dqv4GLKcPx-5hZGWFTkR0Y6E8oUSvipuyZnDha3k1wf7OuH5uPdYQ/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeT7KraqY8maXILohdfQCX2eNU_aedb3qVjzDnu7bEG-tkoDqD7Og-Sgybu4Sj-7gYTA/exec';
 
 export default function DailyHoursForm() {
   const [employee, setEmployee] = useState('');
@@ -89,6 +117,10 @@ export default function DailyHoursForm() {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   });
+
+  // Show admin tasks only for Jeff
+  const isAdmin = employee === 'JC';
+  const availableTasks = isAdmin ? [...TASKS, ...ADMIN_TASKS] : TASKS;
 
   const taskHoursSum = tasks.reduce((sum, t) => {
     const whole = parseFloat(t.hours) || 0;
@@ -168,7 +200,7 @@ export default function DailyHoursForm() {
             }}
             className="w-full py-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition-colors"
           >
-            Submit Another Day
+            Submit Another Entry
           </button>
         </div>
       </div>
@@ -291,7 +323,7 @@ export default function DailyHoursForm() {
                     className="flex-1 p-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-emerald-500"
                   >
                     <option value="">Select task...</option>
-                    {TASKS.map((t) => (
+                    {availableTasks.map((t) => (
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
