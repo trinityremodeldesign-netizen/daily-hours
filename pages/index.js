@@ -12,6 +12,7 @@ const PROJECTS = [
   { id: '1208', address: '1208 W 71st Terrace, Kansas City, MO' },
   { id: '2217', address: '2217 S Cedar Ave, Independence, MO' },
   { id: '6206', address: '6206 Robinson St, Overland Park, KS' },
+  { id: '211', address: '211 SW Craigmont dr, Lee's Summit, MO' }
   { id: 'test', address: 'TEST - Do Not Use for Payroll' },
   { id: 'other', address: 'Other (enter below)' }
 ];
