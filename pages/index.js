@@ -111,7 +111,6 @@ const ROOMS = [
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeT7KraqY8maXILohdfQCX2eNU_aedb3qVjzDnu7bEG-tkoDqD7Og-Sgybu4Sj-7gYTA/exec';
 
-// Get today's date in YYYY-MM-DD format for the date input
 const getTodayString = () => {
   const today = new Date();
   return today.toISOString().split('T')[0];
@@ -119,8 +118,8 @@ const getTodayString = () => {
 
 export default function DailyHoursForm() {
   const [employee, setEmployee] = useState('');
-  const [submitFor, setSubmitFor] = useState(''); // Admin: who to submit for
-  const [submitDate, setSubmitDate] = useState(getTodayString()); // Admin: which date
+  const [submitFor, setSubmitFor] = useState('');
+  const [submitDate, setSubmitDate] = useState(getTodayString());
   const [project, setProject] = useState('');
   const [customProject, setCustomProject] = useState('');
   const [totalHours, setTotalHours] = useState('');
@@ -130,14 +129,7 @@ export default function DailyHoursForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-  });
-
-  // Show admin features only for Jeff
   const isAdmin = employee === 'JC';
-  
-  // Determine which employee's tasks to show (admin submitting for someone vs self)
   const effectiveEmployee = isAdmin && submitFor ? submitFor : employee;
   const showAdminTasks = effectiveEmployee === 'JC';
   const availableTasks = showAdminTasks ? [...TASKS, ...ADMIN_TASKS] : TASKS;
@@ -149,14 +141,13 @@ export default function DailyHoursForm() {
   }, 0);
   const totalHoursValue = (parseFloat(totalHours) || 0) + (parseFloat(totalHoursFraction) || 0);
   const hoursMatch = totalHoursValue === taskHoursSum;
-  
-  // Form valid: need employee, project, hours match, and if admin, need submitFor selection
-  const formValid = employee && 
-    (project !== 'other' ? project : customProject) && 
-    totalHoursValue > 0 && 
-    taskHoursSum > 0 && 
+
+  const formValid = employee &&
+    (project !== 'other' ? project : customProject) &&
+    totalHoursValue > 0 &&
+    taskHoursSum > 0 &&
     hoursMatch &&
-    (!isAdmin || submitFor); // If admin, must select who to submit for
+    (!isAdmin || submitFor);
 
   const addTask = () => setTasks([...tasks, { room: '', task: '', hours: '', hoursFraction: '0', notes: '' }]);
   const removeTask = (index) => tasks.length > 1 && setTasks(tasks.filter((_, i) => i !== index));
@@ -166,10 +157,8 @@ export default function DailyHoursForm() {
     setTasks(updated);
   };
 
-  // Format selected date for display
   const getDisplayDate = () => {
-    if (!isAdmin) return today;
-    const date = new Date(submitDate + 'T12:00:00'); // Add time to avoid timezone issues
+    const date = new Date(submitDate + 'T12:00:00');
     return date.toLocaleDateString('en-US', {
       weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
     });
@@ -177,15 +166,13 @@ export default function DailyHoursForm() {
 
   const handleSubmit = async () => {
     if (!formValid || submitting) return;
-    
+
     setSubmitting(true);
     setError('');
 
-    // Determine the actual employee being submitted for
     const targetEmployeeId = isAdmin ? submitFor : employee;
     const targetEmployee = EMPLOYEES.find(e => e.id === targetEmployeeId);
-    
-    // Determine the date to useconst targetDate = new Date(submitDate + 'T12:00:00');
+    const targetDate = new Date(submitDate + 'T12:00:00');
 
     const payload = {
       timestamp: new Date().toISOString(),
@@ -200,9 +187,8 @@ export default function DailyHoursForm() {
         hours: (parseFloat(t.hours) || 0) + (parseFloat(t.hoursFraction) || 0),
         notes: t.notes
       })),
-      // Admin metadata
       submittedBy: isAdmin ? 'JC' : targetEmployeeId,
-      isBackfill: isAdmin && submitDate !== getTodayString()
+      isBackfill: submitDate !== getTodayString()
     };
 
     try {
@@ -212,7 +198,7 @@ export default function DailyHoursForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       setSubmitted(true);
     } catch (err) {
       setError('Failed to submit. Check your connection and try again.');
@@ -222,10 +208,10 @@ export default function DailyHoursForm() {
   };
 
   if (submitted) {
-    const targetName = isAdmin && submitFor 
-      ? EMPLOYEES.find(e => e.id === submitFor)?.name 
+    const targetName = isAdmin && submitFor
+      ? EMPLOYEES.find(e => e.id === submitFor)?.name
       : EMPLOYEES.find(e => e.id === employee)?.name;
-    
+
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
         <div className="bg-slate-800 rounded-2xl p-8 max-w-md w-full text-center border border-slate-700">
@@ -236,12 +222,12 @@ export default function DailyHoursForm() {
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">Hours Submitted!</h2>
           <p className="text-slate-400 mb-2">
-            {isAdmin && submitFor !== 'JC' 
+            {isAdmin && submitFor !== 'JC'
               ? `Logged ${totalHoursValue} hours for ${targetName}`
               : 'Thanks for logging your time today.'
             }
           </p>
-          {isAdmin && submitDate !== getTodayString() && (
+          {submitDate !== getTodayString() && (
             <p className="text-amber-400 text-sm mb-4">
               Backfill entry for {getDisplayDate()}
             </p>
@@ -267,7 +253,17 @@ export default function DailyHoursForm() {
       </div>
     );
   }
-<div className="mb-6">
+
+  return (
+    <div className="min-h-screen bg-slate-900 py-6 px-4">
+      <div className="max-w-lg mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Daily Hours</h1>
+          <p className="text-emerald-400 font-medium">{getDisplayDate()}</p>
+        </div>
+
+        {/* Date picker - visible to everyone */}
+        <div className="mb-6">
           <label className="block text-slate-400 text-sm font-medium mb-2">DATE</label>
           <input
             type="date"
@@ -283,23 +279,13 @@ export default function DailyHoursForm() {
 
         <div className="mb-6">
           <label className="block text-slate-400 text-sm font-medium mb-2">WHO ARE YOU?</label>
-  return (
-    <div className="min-h-screen bg-slate-900 py-6 px-4">
-      <div className="max-w-lg mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Daily Hours</h1>
-          <p className="text-emerald-400 font-medium">{getDisplayDate()}</p>
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-slate-400 text-sm font-medium mb-2">WHO ARE YOU?</label>
           <div className="grid grid-cols-1 gap-3">
             {EMPLOYEES.map((emp) => (
               <button
                 key={emp.id}
                 onClick={() => {
                   setEmployee(emp.id);
-                  setSubmitFor(emp.id === 'JC' ? '' : ''); // Reset submitFor when changing employee
+                  setSubmitFor('');
                 }}
                 className={`p-4 rounded-xl text-left font-semibold transition-all ${
                   employee === emp.id
@@ -313,7 +299,7 @@ export default function DailyHoursForm() {
           </div>
         </div>
 
-        {/* Admin-only: Submit For dropdown */}
+        {/* Admin-only: Submit For */}
         {isAdmin && (
           <div className="mb-6 p-4 bg-amber-900/20 border border-amber-500/30 rounded-xl">
             <label className="block text-amber-400 text-sm font-medium mb-2">⚡ ADMIN: SUBMIT FOR WHO?</label>
@@ -332,20 +318,6 @@ export default function DailyHoursForm() {
                 </button>
               ))}
             </div>
-            
-            <label className="block text-amber-400 text-sm font-medium mt-4 mb-2">⚡ ADMIN: WHICH DATE?</label>
-            <input
-              type="date"
-              value={submitDate}
-              max={getTodayString()}
-              onChange={(e) => setSubmitDate(e.target.value)}
-              className="w-full p-3 bg-slate-800 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-amber-500"
-            />
-            {submitDate !== getTodayString() && (
-              <p className="text-amber-400 text-xs mt-2">
-                ⚠️ Backfill entry - not today's date
-              </p>
-            )}
           </div>
         )}
 
@@ -366,7 +338,7 @@ export default function DailyHoursForm() {
               </button>
             ))}
           </div>
-          
+
           {project === 'other' && (
             <input
               type="text"
@@ -413,7 +385,7 @@ export default function DailyHoursForm() {
               </span>
             )}
           </div>
-          
+
           <div className="space-y-4">
             {tasks.map((task, index) => (
               <div key={index} className="bg-slate-800 rounded-xl p-4 border border-slate-700">
@@ -430,7 +402,7 @@ export default function DailyHoursForm() {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="flex gap-3 mb-3">
                   <select
                     value={task.task}
@@ -442,7 +414,7 @@ export default function DailyHoursForm() {
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
-                  
+
                   <input
                     type="number"
                     step="1"
@@ -452,7 +424,7 @@ export default function DailyHoursForm() {
                     placeholder="Hrs"
                     className="w-16 p-3 bg-slate-700 border border-slate-600 rounded-lg text-white text-center focus:outline-none focus:border-emerald-500"
                   />
-                  
+
                   <select
                     value={task.hoursFraction}
                     onChange={(e) => updateTask(index, 'hoursFraction', e.target.value)}
@@ -463,7 +435,7 @@ export default function DailyHoursForm() {
                     <option value="0.5">.50</option>
                     <option value="0.75">.75</option>
                   </select>
-                  
+
                   {tasks.length > 1 && (
                     <button
                       onClick={() => removeTask(index)}
@@ -475,7 +447,7 @@ export default function DailyHoursForm() {
                     </button>
                   )}
                 </div>
-                
+
                 <input
                   type="text"
                   value={task.notes}
@@ -501,8 +473,8 @@ export default function DailyHoursForm() {
         {totalHoursValue > 0 && !hoursMatch && (
           <div className="mb-6 p-4 bg-amber-900/30 border border-amber-500/30 rounded-xl">
             <p className="text-amber-400 text-sm font-medium">
-              Task hours ({taskHoursSum}) don't match total hours ({totalHoursValue}). 
-              {taskHoursSum < totalHoursValue 
+              Task hours ({taskHoursSum}) don't match total hours ({totalHoursValue}).
+              {taskHoursSum < totalHoursValue
                 ? ` Add ${(totalHoursValue - taskHoursSum).toFixed(2)} more hours.`
                 : ` Remove ${(taskHoursSum - totalHoursValue).toFixed(2)} hours.`
               }
@@ -533,8 +505,8 @@ export default function DailyHoursForm() {
               : 'bg-slate-700 text-slate-500 cursor-not-allowed'
           }`}
         >
-          {submitting 
-            ? 'Submitting...' 
+          {submitting
+            ? 'Submitting...'
             : isAdmin && submitFor && submitFor !== 'JC'
               ? `Submit for ${EMPLOYEES.find(e => e.id === submitFor)?.name.split(' ')[0]}`
               : 'Submit Hours'
