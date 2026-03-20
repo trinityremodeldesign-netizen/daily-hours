@@ -18,8 +18,8 @@ const CREW_EMPLOYEES = [
 const PROJECTS = [
   { id: '1208', address: '1208 W 71st Terrace, Kansas City, MO' },
   { id: '2217', address: '2217 S Cedar Ave, Independence, MO' },
-  { id: '6206', address: '6206 Robinson St, Overland Park, KS' },
   { id: '211', address: '211 SW Craigmont Dr, Lees Summit, MO' },
+  { id: '1801', address: '1801 N Davidson Rd, Independence, MO' },
   { id: 'test', address: 'TEST - Do Not Use for Payroll' },
   { id: 'other', address: 'Other (enter below)' }
 ];
@@ -185,8 +185,7 @@ export default function DailyHoursForm() {
     const targetEmployeeId = isAdmin ? submitFor : employee;
     const targetEmployee = EMPLOYEES.find(e => e.id === targetEmployeeId);
     
-    // Determine the date to use
-    const targetDate = isAdmin ? new Date(submitDate + 'T12:00:00') : new Date();
+    // Determine the date to useconst targetDate = new Date(submitDate + 'T12:00:00');
 
     const payload = {
       timestamp: new Date().toISOString(),
@@ -268,13 +267,28 @@ export default function DailyHoursForm() {
       </div>
     );
   }
+<div className="mb-6">
+          <label className="block text-slate-400 text-sm font-medium mb-2">DATE</label>
+          <input
+            type="date"
+            value={submitDate}
+            max={getTodayString()}
+            onChange={(e) => setSubmitDate(e.target.value)}
+            className="w-full p-4 bg-slate-800 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+          />
+          {submitDate !== getTodayString() && (
+            <p className="text-amber-400 text-xs mt-2">⚠️ Backfill entry — not today's date</p>
+          )}
+        </div>
 
+        <div className="mb-6">
+          <label className="block text-slate-400 text-sm font-medium mb-2">WHO ARE YOU?</label>
   return (
     <div className="min-h-screen bg-slate-900 py-6 px-4">
       <div className="max-w-lg mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Daily Hours</h1>
-          <p className="text-emerald-400 font-medium">{isAdmin ? getDisplayDate() : today}</p>
+          <p className="text-emerald-400 font-medium">{getDisplayDate()}</p>
         </div>
 
         <div className="mb-6">
